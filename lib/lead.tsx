@@ -40,8 +40,8 @@ export default function GroceryPage() {
       {/* Hero Section */}
       <section className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-6 bg-gradient-to-r from-orange-100 to-orange-50 rounded-3xl p-8">
         <div className="flex flex-col justify-center">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">From farm to your kitchen</h2>
-          <p className="text-gray-600 mb-6">Discover the freshest and finest groceries delivered quickly and conveniently.</p>
+          <h2 className="text-4xl font-bold text-gray-800 mb-4">Votre marché universitaire</h2>
+          <p className="text-gray-600 mb-6">Découvrez une sélection exclusive de fruits frais soignesement cueillis et livrés en un temps record sur le campus.</p>
           <Button className="bg-orange-500 hover:bg-orange-600 w-fit px-6 py-4 text-lg">Shop Now</Button>
         </div>
         <div className="relative flex justify-center items-center">
