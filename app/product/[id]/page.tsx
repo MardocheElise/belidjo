@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, ShoppingCart, Plus, Minus, Heart } from "lucide-react";
 import Image from "next/image";
@@ -24,7 +24,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       <div className="min-h-screen bg-orange-50 flex items-center justify-center">
         <Card className="p-8 text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Produit non trouvé</h2>
-          <p className="text-gray-600 mb-4">Le produit que vous recherchez n'existe pas.</p>
+          <p className="text-gray-600 mb-4">Le produit que vous recherchez nexiste pas.</p>
           <Link href="/">
             <Button className="bg-orange-500 hover:bg-orange-600">
               <ArrowLeft className="mr-2 h-4 w-4" />
