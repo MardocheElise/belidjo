@@ -1,4 +1,4 @@
-// 1. Créez le contexte pour gérer le panier globalement: lib/CartContext.tsx
+
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
@@ -19,6 +19,7 @@ interface CartContextType {
   getTotalPrice: () => number;
 }
 
+const livraison = 50
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
@@ -63,7 +64,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const getTotalPrice = () => {
-    return cartItems.reduce((total, item) => total + (item.product.priceNumber * item.quantity), 0);
+    return cartItems.reduce((total, item) => total + (item.product.priceNumber * item.quantity) + livraison, 0);
   };
 
   return (

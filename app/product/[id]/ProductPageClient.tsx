@@ -34,7 +34,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
   const [quantity, setQuantity] = useState(1);
   const [isLiked, setIsLiked] = useState(false);
   const [showCartModal, setShowCartModal] = useState(false);
-  
+  const livraison = 50
   const { addToCart, getTotalItems } = useCart();
 
   if (!product) {
@@ -68,7 +68,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
     setQuantity(1);
   };
 
-  const totalPrice = (product.priceNumber * quantity).toFixed(2);
+  const totalPrice = (product.priceNumber * quantity + livraison).toFixed(2);
   const cartItemsCount = getTotalItems();
 
   return (
@@ -77,7 +77,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
       <header className="w-full bg-white shadow-sm p-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link href="/">
+            <Link href="/product">
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Retour
@@ -194,8 +194,13 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                 </div>
 
                 <div className="flex items-center justify-between text-lg">
+                  <span className="font-semibold">Livraison:</span>
+                  <span className="font-bold text-orange-500"> {livraison} FCFA</span>
+                </div>
+
+                <div className="flex items-center justify-between text-lg">
                   <span className="font-semibold">Total:</span>
-                  <span className="font-bold text-orange-500">${totalPrice}</span>
+                  <span className="font-bold text-orange-500">{totalPrice} FCFA</span>
                 </div>
 
                 <Button 

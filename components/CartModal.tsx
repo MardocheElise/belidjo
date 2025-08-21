@@ -1,4 +1,4 @@
-// 2. Créez le composant modal du panier: components/CartModal.tsx
+
 "use client";
 
 import { useState } from 'react';
@@ -21,6 +21,8 @@ interface OrderForm {
   lastName: string;
   whatsapp: string;
   roomNumber: string;
+  citeUniversitaire:string
+  reservation: string
 }
 
 export default function CartModal({ isOpen, onClose }: CartModalProps) {
@@ -30,13 +32,15 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
     firstName: '',
     lastName: '',
     whatsapp: '',
-    roomNumber: ''
+    roomNumber: '',
+    citeUniversitaire:'',
+    reservation: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSent, setOrderSent] = useState(false);
 
-  // Remplacez par votre numéro WhatsApp (format international sans +)
-  const BUSINESS_WHATSAPP = "2250556939672"; // Exemple: remplacez par votre vrai numéro
+  
+  const BUSINESS_WHATSAPP = "2250556939672"; 
 
   if (!isOpen) return null;
 
@@ -46,7 +50,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
 
   const handleSubmitOrder = async () => {
     // Validation basique
-    if (!orderForm.firstName || !orderForm.lastName || !orderForm.whatsapp || !orderForm.roomNumber) {
+    if (!orderForm.firstName || !orderForm.lastName || !orderForm.whatsapp || !orderForm.roomNumber || !orderForm.citeUniversitaire ) {
       alert("Veuillez remplir tous les champs");
       return;
     }
@@ -69,6 +73,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
 
 👤 *Client:* ${orderForm.firstName} ${orderForm.lastName}
 📱 *WhatsApp:* ${orderForm.whatsapp}
+🏠 *Cité Universitaire:* ${orderForm.citeUniversitaire}
 🏠 *Chambre:* ${orderForm.roomNumber}
 
 📦 *Commande:*
@@ -259,6 +264,18 @@ Commande à livrer en moins de 15 min 🚀`;
                     value={orderForm.roomNumber}
                     onChange={(e) => handleInputChange('roomNumber', e.target.value)}
                     placeholder="Ex: A-205, Bât B-104..."
+                  />
+                </div>
+                 <div>
+                  <Label htmlFor="citeUniversitaire" className="flex items-center space-x-1">
+                    <Home className="h-4 w-4" />
+                    <span>Nom de votre cité Universitaire</span>
+                  </Label>
+                  <Input
+                    id="citeUniversitaire"
+                    value={orderForm.citeUniversitaire}
+                    onChange={(e) => handleInputChange('citeUniversitaire', e.target.value)}
+                    placeholder="Ex: Abobo 1 ...."
                   />
                 </div>
 

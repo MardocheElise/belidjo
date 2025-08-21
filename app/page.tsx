@@ -136,8 +136,8 @@ export default function FruitHomepage() {
           supérieure, soigneusement cueillis et livrés en un temps record
           directement sur votre campus.
           <br />
-          Mangues gorgées de soleil, ananas parfumés, avocats onctueux et
-          bananes parfaitement mûres —
+          Mangues gorgées de soleil, ananas parfumés, avocats onctueux,
+          bananes parfaitement mûres etc. —
           <span className="font-bold text-yellow-200">
             {" "}
             tout ce qu’il vous faut pour allier santé, plaisir et praticité au
