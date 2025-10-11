@@ -6,12 +6,13 @@ import connectDB from "@/lib/mongodb";
 // GET - Récupérer un vendeur par ID
 export async function GET(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await connectDB();
+        const { id } = await params;
         
-        const vendor = await Vendor.findById(params.id);
+        const vendor = await Vendor.findById(id);
         
         if (!vendor) {
             return NextResponse.json(
@@ -21,7 +22,7 @@ export async function GET(
         }
         
         // Récupérer aussi les produits du vendeur
-        const products = await Product.find({ vendorId: params.id });
+        const products = await Product.find({ vendorId: id });
         
         return NextResponse.json({
             status: 200,
@@ -41,15 +42,16 @@ export async function GET(
 // PUT - Mettre à jour un vendeur
 export async function PUT(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await connectDB();
+        const { id } = await params;
         
         const body = await req.json();
         
         const updatedVendor = await Vendor.findByIdAndUpdate(
-            params.id,
+            id,
             { $set: body },
             { new: true, runValidators: true }
         );
@@ -96,14 +98,15 @@ export async function PUT(
 // DELETE - Supprimer un vendeur (soft delete)
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await connectDB();
+        const { id } = await params;
         
         // Soft delete - désactiver le vendeur au lieu de le supprimer
         const vendor = await Vendor.findByIdAndUpdate(
-            params.id,
+            id,
             { isActive: false },
             { new: true }
         );
@@ -117,7 +120,7 @@ export async function DELETE(
         
         // Désactiver aussi tous ses produits
         await Product.updateMany(
-            { vendorId: params.id },
+            { vendorId: id },
             { isActive: false }
         );
         
