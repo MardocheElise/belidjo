@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { CartProvider } from "@/lib/CartContext";
 import SessionProvider from "@/components/SessionProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 // const inter = Inter({
 //   variable: "--font-inter",
@@ -32,6 +33,7 @@ export default function RootLayout({
         <CartProvider>
           <SessionProvider>
           {children}
+          <Toaster />
           </SessionProvider>
         </CartProvider>
       </body>

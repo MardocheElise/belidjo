@@ -107,18 +107,16 @@
 // }
 "use client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { products } from "./products";
 import { useCart } from "./CartContext";
 import { useState } from "react";
 import CartModal from "@/components/CartModal";
 import VendorLoginModal from "@/components/VendorLoginModal";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import ProductsPage from "@/components/Fetch_products";
+import VendorMenu from "@/components/VendorClick";
 
 // Composant Principal GroceryPage
 export default function GroceryPage() {
@@ -126,15 +124,6 @@ export default function GroceryPage() {
   const [showCartModal, setShowCartModal] = useState(false);
   const [showVendorLogin, setShowVendorLogin] = useState(false);
   const cartItemsCount = getTotalItems();
-  const router = useRouter();
-  const { data: session } = useSession();
-  const handleVendorClick = () => {
-    if (session) {
-      router.push("/vendor-dashboard");
-    } else {
-      setShowVendorLogin(true);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-orange-50 flex flex-col items-center py-10 px-4">
@@ -145,16 +134,8 @@ export default function GroceryPage() {
         </h1>
 
         {/* Navigation  */}
-        <div className="flex items-center gap-3">
-          {/* Bouton Admin Vendeur */}
-          <Button
-            variant="outline"
-            onClick={handleVendorClick}
-            className="bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
-          >
-            Vendeur
-          </Button>
-
+        <div className="flex items-center gap-3">     
+          <VendorMenu/>
           {/* Bouton panier  */}
           <Button
             variant="outline"
@@ -202,34 +183,7 @@ export default function GroceryPage() {
       </section>
 
       {/* Products */}
-      <section className="w-full max-w-6xl grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
-        {products.map((product, index) => (
-          <Card
-            key={index}
-            className="rounded-xl md:rounded-2xl border-0 hover:shadow-lg transition"
-          >
-            <Link href={`/product/${product.id}`}>
-              <CardContent className="flex flex-col items-center md:p-4">
-                <div className="p-4 mb-2">
-                  <Image
-                    src={product.img}
-                    alt={product.name}
-                    width={90}
-                    height={100}
-                  />
-                </div>
-                <h3 className="font-semibold text-lg text-center">
-                  {product.name}
-                </h3>
-                <p className="text-gray-500 text-sm mb-2">{product.desc}</p>
-                <span className="font-bold text-orange-500">
-                  {product.price}
-                </span>
-              </CardContent>
-            </Link>
-          </Card>
-        ))}
-      </section>
+      <ProductsPage/>
 
       {/* Modal du panier existant */}
       <CartModal
@@ -237,7 +191,7 @@ export default function GroceryPage() {
         onClose={() => setShowCartModal(false)}
       />
 
-      {/* Modal de connexion vendeur - NOUVEAU */}
+      {/* Modal de connexion vendeur */}
       <VendorLoginModal
         isOpen={showVendorLogin}
         onClose={() => setShowVendorLogin(false)}
