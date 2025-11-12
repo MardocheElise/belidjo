@@ -368,7 +368,7 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import connectDB from "@/lib/mongodb";
-import { Vendor } from "@/lib/models";
+import { Vendor } from "@/lib/models/model_vendor";
 
 // Configuration de NextAuth
 const authOptions: NextAuthOptions = {

@@ -53,50 +53,59 @@ export default function ProductDetailPage() {
   const cartItemsCount = getTotalItems();
   const [showCartModal, setShowCartModal] = useState(false);
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await fetch(`/api/product/${params.id}`);
-        if (!response.ok) throw new Error("Produit non trouvé");
-        const data = await response.json();
-        setProduct(data);
-      } catch (error) {
-        console.error("Erreur:", error);
-        // toast({
-        //   title: "Erreur",
-        //   description: "Impossible de charger le produit",
-        //   variant: "destructive",
-        // });
-      } finally {
-        setLoading(false);
-      }
-    };
+   const fetchProduct = async () => {
+  try {
+    const response = await fetch(`/api/product/${params.id}`);
+    if (!response.ok) throw new Error("Produit non trouvé");
+    const data = await response.json();
+    
+    // S'assurer que le produit a un vendorId
+    if (!data.vendorId) {
+      console.error("❌ Produit sans vendorId:", data);
+      throw new Error("Produit invalide: vendorId manquant");
+    }
+    
+    setProduct(data);
+  } catch (error) {
+    console.error("Erreur:", error);
+    // toast...
+  } finally {
+    setLoading(false);
+  }
+};
 
     if (params.id) {
       fetchProduct();
     }
   }, [params.id]);
-  const handleAddToCart = () => {
-    if (product) {
-      addToCart(
-        {
-          id: product._id,
-          name: product.name,
-          price: product.price.toString(),
-          priceNumber: product.price,
-          img: product.img,
-          desc: product.description,
-          category: product.category,
-          stock: product.stock,
-        },
-        quantity
-      );
-
-      // toast({
-      //   title: "Ajouté au panier",
-      //   description: `${quantity} ${product.unit} de ${product.name}`,
-      // });
+ const handleAddToCart = () => {
+  if (product) {
+    // VALIDER que le produit a toutes les données nécessaires
+    if (!product._id || !product.vendorId) {
+      console.error("❌ Produit invalide pour le panier:", product);
+      alert("Erreur: Ce produit ne peut pas être ajouté au panier");
+      return;
     }
-  };
+
+    addToCart(
+      {
+        id: product._id,
+        name: product.name,
+        price: product.price.toString(),
+        priceNumber: product.price,
+        img: product.img,
+        desc: product.description || product.description,
+        category: product.category,
+        stock: product.stock,
+        vendorId: product.vendorId._id,
+        unit: product.unit || "unité"
+      },
+      quantity
+    );
+
+    // toast...
+  }
+};
 
   const incrementQuantity = () => {
     if (product && quantity < product.stock) {
@@ -269,7 +278,7 @@ export default function ProductDetailPage() {
                 >
                   <ShoppingCart className="mr-2 h-5 w-5" />
                   {product.stock > 0
-                    ? `Ajouter au panier - ${(
+                    ? `Ajouter au panier  ${(
                         product.price * quantity
                       ).toLocaleString()} FCFA`
                     : "Rupture de stock"}

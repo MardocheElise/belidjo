@@ -49,7 +49,7 @@ export default function VendorMenu() {
             
             <DropdownMenuItem onClick={() => handleNavigate('/vendor-dashboard')}>
               <LayoutDashboard className="mr-2 h-4 w-4" />
-              Voir Dashboard
+              Ajouter un produit
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />

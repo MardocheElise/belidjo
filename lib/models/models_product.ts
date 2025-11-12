@@ -81,6 +81,7 @@ export interface IProduct {
   nutritionalInfo?: string[];
   isActive: boolean;
   stock: number;
+  unit?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -145,6 +146,11 @@ const ProductSchema = new Schema<IProduct>(
       required: [true, "Le stock est requis"],
       min: [0, "Le stock doit être positif"],
       default: 0,
+    },
+    unit: {
+      type: String,
+      required: false,
+      default: "unité"
     },
   },
   {
