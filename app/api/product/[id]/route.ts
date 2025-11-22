@@ -98,8 +98,6 @@
 
 
 
-
-
 // app/api/products/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
@@ -110,12 +108,13 @@ import { authOptions } from "../../auth/[...nextauth]/route";
 // ✅ GET - Récupérer un produit spécifique
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
     
-    const product = await Product.findById(params.id);
+    const { id } = await params;
+    const product = await Product.findById(id);
     
     if (!product) {
       return NextResponse.json(
@@ -158,7 +157,7 @@ export async function GET(
 // ✅ PUT - Modifier un produit (seulement par le vendeur propriétaire)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     console.log("🔍 Vérification de la session...");
@@ -177,8 +176,10 @@ export async function PUT(
 
     await connectDB();
 
+    const { id } = await params;
+
     // Vérifier que le produit existe et appartient au vendeur
-    const product = await Product.findById(params.id);
+    const product = await Product.findById(id);
 
     if (!product) {
       return NextResponse.json(
@@ -216,7 +217,7 @@ export async function PUT(
       isActive
     } = body;
 
-    console.log("📝 Mise à jour du produit:", params.id);
+    console.log("📝 Mise à jour du produit:", id);
 
     // Validation
     if (name !== undefined && !name) {
@@ -258,7 +259,7 @@ export async function PUT(
 
     // Mettre à jour
     const updatedProduct = await Product.findByIdAndUpdate(
-      params.id,
+      id,
       updateData,
       { new: true, runValidators: true }
     );
@@ -299,7 +300,7 @@ export async function PUT(
 // ✅ DELETE - Supprimer un produit (seulement par le vendeur propriétaire)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     console.log("🔍 Vérification de la session pour suppression...");
@@ -318,8 +319,10 @@ export async function DELETE(
 
     await connectDB();
 
+    const { id } = await params;
+
     // Vérifier que le produit existe
-    const product = await Product.findById(params.id);
+    const product = await Product.findById(id);
 
     if (!product) {
       return NextResponse.json(
@@ -340,17 +343,17 @@ export async function DELETE(
       );
     }
 
-    console.log("🗑️ Suppression du produit:", params.id);
+    console.log("🗑️ Suppression du produit:", id);
 
     // Supprimer le produit
-    await Product.findByIdAndDelete(params.id);
+    await Product.findByIdAndDelete(id);
 
     console.log("✅ Produit supprimé avec succès");
 
     return NextResponse.json(
       {
         message: "Produit supprimé avec succès",
-        productId: params.id
+        productId: id
       },
       { status: 200 }
     );
