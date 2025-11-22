@@ -489,7 +489,7 @@ export default function VendorDashboard() {
         <Card className="shadow-2xl border-0 rounded-2xl backdrop-blur-lg bg-white/80">
           <CardHeader className="text-center space-y-2">
             <CardTitle className="text-3xl font-bold text-orange-600">
-              Dashboard Vendeur
+              Ajouter un Produit
             </CardTitle>
             <p className="text-gray-700">
               Bienvenue, <span className="font-semibold">{session?.user?.name || "Vendeur"}</span>
