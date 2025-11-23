@@ -73,7 +73,7 @@ export default function VendorProductsPage() {
         setIsLoading(true);
         setError(null);
 
-        const response = await fetch('/api/products');
+        const response = await fetch('/api/product');
         
         if (!response.ok) {
           throw new Error('Erreur lors de la récupération des produits');
@@ -185,7 +185,7 @@ export default function VendorProductsPage() {
           return;
         }
         editForm.priceNumber = priceNum;
-        editForm.price = `${priceNum} FCFA`;
+        editForm.price = `${priceNum}`;
       }
 
       if (editForm.stock !== undefined) {
@@ -200,7 +200,7 @@ export default function VendorProductsPage() {
         editForm.stock = stockNum;
       }
 
-      const response = await fetch(`/api/products/${productId}`, {
+      const response = await fetch(`/api/product/${productId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editForm),
@@ -244,7 +244,7 @@ export default function VendorProductsPage() {
     try {
       setDeletingId(productId);
 
-      const response = await fetch(`/api/products/${productId}`, {
+      const response = await fetch(`/api/product/${productId}`, {
         method: 'DELETE',
       });
 
@@ -270,7 +270,7 @@ export default function VendorProductsPage() {
   // Activer/Désactiver un produit
   const handleToggleActive = async (productId: string, currentActive: boolean) => {
     try {
-      const response = await fetch(`/api/products/${productId}`, {
+      const response = await fetch(`/api/product/${productId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isActive: !currentActive }),
