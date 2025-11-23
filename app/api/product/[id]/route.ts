@@ -159,7 +159,7 @@ import { authOptions } from "../../auth/[...nextauth]/route";
 // ✅ GET - Récupérer un produit spécifique avec toutes les infos
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+ { params }: { params: { id: string } }
 ) {
   try {
     console.log("🔍 Récupération produit...");
