@@ -98,6 +98,8 @@
 
 
 
+
+
 // app/api/products/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
@@ -106,49 +108,134 @@ import { Product } from "@/lib/models";
 import { authOptions } from "../../auth/[...nextauth]/route";
 
 // ✅ GET - Récupérer un produit spécifique
+// export async function GET(
+//   request: NextRequest,
+//   { params }: { params: { id: string } }
+// ) {
+//   try {
+//     await connectDB();
+    
+//     const product = await Product.findById(params.id);
+    
+//     if (!product) {
+//       return NextResponse.json(
+//         { message: "Produit introuvable" },
+//         { status: 404 }
+//       );
+//     }
+
+//     // Transformer pour le frontend
+//     const transformedProduct = {
+//       id: product._id.toString(),
+//       _id: product._id.toString(),
+//       name: product.name,
+//       desc: product.desc,
+//       price: product.price,
+//       priceNumber: product.priceNumber,
+//       img: product.img,
+//       category: product.category,
+//       vendorId: product.vendorId.toString(),
+//       details: product.details,
+//       origin: product.origin,
+//       freshness: product.freshness,
+//       nutritionalInfo: product.nutritionalInfo || [],
+//       stock: product.stock,
+//       isActive: product.isActive,
+//       createdAt: product.createdAt?.toISOString(),
+//       updatedAt: product.updatedAt?.toISOString(),
+//     };
+
+//     return NextResponse.json({ product: transformedProduct }, { status: 200 });
+//   } catch (error) {
+//     console.error("❌ Erreur récupération produit:", error);
+//     return NextResponse.json(
+//       { message: "Erreur lors de la récupération du produit" },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+
+// ✅ GET - Récupérer un produit spécifique avec toutes les infos
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    console.log("🔍 Récupération produit...");
+    
     await connectDB();
     
     const { id } = await params;
-    const product = await Product.findById(id);
+    console.log("📦 ID produit:", id);
+    
+    // ✅ Récupérer le produit AVEC populate pour avoir les infos du vendeur
+    const product = await Product.findById(id)
+      .populate('vendorId', 'name email phone businessType logo')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .lean() as any;
     
     if (!product) {
+      console.log("❌ Produit introuvable");
       return NextResponse.json(
         { message: "Produit introuvable" },
         { status: 404 }
       );
     }
 
-    // Transformer pour le frontend
+    console.log("✅ Produit trouvé:", product.name);
+
+    // ✅ Transformer pour le frontend (format compatible avec ta page)
     const transformedProduct = {
-      id: product._id.toString(),
       _id: product._id.toString(),
+      id: product._id.toString(),
       name: product.name,
-      desc: product.desc,
-      price: product.price,
+      desc: product.desc || '',
+      description: product.desc || '', // Alias pour compatibilité
+      price: product.priceNumber, // ⚠️ Format nombre pour ta page
       priceNumber: product.priceNumber,
+      priceString: product.price, // Version string
       img: product.img,
       category: product.category,
-      vendorId: product.vendorId.toString(),
+      stock: product.stock,
+      unit: product.unit || 'unité',
+      // ✅ Vendeur : soit l'objet complet si populate, soit juste l'ID
+      vendorId: product.vendorId 
+        ? typeof product.vendorId === 'object'
+          ? {
+              _id: product.vendorId._id.toString(),
+              name: product.vendorId.name,
+              email: product.vendorId.email,
+              phone: product.vendorId.phone,
+              businessType: product.vendorId.businessType,
+              logo: product.vendorId.logo || ''
+            }
+          : { _id: product.vendorId.toString() }
+        : null,
       details: product.details,
       origin: product.origin,
       freshness: product.freshness,
       nutritionalInfo: product.nutritionalInfo || [],
-      stock: product.stock,
       isActive: product.isActive,
-      createdAt: product.createdAt?.toISOString(),
-      updatedAt: product.updatedAt?.toISOString(),
+      createdAt: product.createdAt?.toISOString?.() || product.createdAt,
+      updatedAt: product.updatedAt?.toISOString?.() || product.updatedAt,
     };
 
-    return NextResponse.json({ product: transformedProduct }, { status: 200 });
+    console.log("📤 Produit transformé:", {
+      id: transformedProduct.id,
+      name: transformedProduct.name,
+      price: transformedProduct.price,
+      vendorId: transformedProduct.vendorId
+    });
+
+    return NextResponse.json(transformedProduct, { status: 200 });
   } catch (error) {
     console.error("❌ Erreur récupération produit:", error);
     return NextResponse.json(
-      { message: "Erreur lors de la récupération du produit" },
+      { 
+        message: "Erreur lors de la récupération du produit",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
@@ -157,7 +244,7 @@ export async function GET(
 // ✅ PUT - Modifier un produit (seulement par le vendeur propriétaire)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     console.log("🔍 Vérification de la session...");
@@ -176,10 +263,8 @@ export async function PUT(
 
     await connectDB();
 
-    const { id } = await params;
-
     // Vérifier que le produit existe et appartient au vendeur
-    const product = await Product.findById(id);
+    const product = await Product.findById(params.id);
 
     if (!product) {
       return NextResponse.json(
@@ -217,7 +302,7 @@ export async function PUT(
       isActive
     } = body;
 
-    console.log("📝 Mise à jour du produit:", id);
+    console.log("📝 Mise à jour du produit:", params.id);
 
     // Validation
     if (name !== undefined && !name) {
@@ -259,7 +344,7 @@ export async function PUT(
 
     // Mettre à jour
     const updatedProduct = await Product.findByIdAndUpdate(
-      id,
+      params.id,
       updateData,
       { new: true, runValidators: true }
     );
@@ -300,7 +385,7 @@ export async function PUT(
 // ✅ DELETE - Supprimer un produit (seulement par le vendeur propriétaire)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     console.log("🔍 Vérification de la session pour suppression...");
@@ -319,10 +404,8 @@ export async function DELETE(
 
     await connectDB();
 
-    const { id } = await params;
-
     // Vérifier que le produit existe
-    const product = await Product.findById(id);
+    const product = await Product.findById(params.id);
 
     if (!product) {
       return NextResponse.json(
@@ -343,17 +426,17 @@ export async function DELETE(
       );
     }
 
-    console.log("🗑️ Suppression du produit:", id);
+    console.log("🗑️ Suppression du produit:", params.id);
 
     // Supprimer le produit
-    await Product.findByIdAndDelete(id);
+    await Product.findByIdAndDelete(params.id);
 
     console.log("✅ Produit supprimé avec succès");
 
     return NextResponse.json(
       {
         message: "Produit supprimé avec succès",
-        productId: id
+        productId: params.id
       },
       { status: 200 }
     );
