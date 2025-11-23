@@ -100,12 +100,6 @@
 
 
 
-// app/api/products/[id]/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import connectDB from "@/lib/mongodb";
-import { Product } from "@/lib/models";
-import { authOptions } from "../../auth/[...nextauth]/route";
 
 // ✅ GET - Récupérer un produit spécifique
 // export async function GET(
@@ -251,6 +245,12 @@ import { authOptions } from "../../auth/[...nextauth]/route";
 
 
 
+// app/api/products/[id]/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import connectDB from "@/lib/mongodb";
+import { Product } from "@/lib/models";
+import { authOptions } from "../../auth/[...nextauth]/route";
 
  
 // ✅ GET - Récupérer un produit spécifique avec toutes les infos
@@ -341,10 +341,155 @@ export async function GET(
     );
   }
 }
-// ✅ PUT - Modifier un produit (seulement par le vendeur propriétaire)
+// // ✅ PUT - Modifier un produit (seulement par le vendeur propriétaire)
+// export async function PUT(
+//   request: NextRequest,
+//   { params }: { params: { id: string } }
+// ) {
+//   try {
+//     console.log("🔍 Vérification de la session...");
+    
+//     const session = await getServerSession(authOptions);
+    
+//     if (!session || !session.user) {
+//       return NextResponse.json(
+//         { message: "Non autorisé. Vous devez être connecté." },
+//         { status: 401 }
+//       );
+//     }
+
+//     const vendorId = session.user.id;
+//     console.log("👤 Vendeur connecté:", vendorId);
+
+//     await connectDB();
+
+//     // Vérifier que le produit existe et appartient au vendeur
+//     const product = await Product.findById(params.id);
+
+//     if (!product) {
+//       return NextResponse.json(
+//         { message: "Produit introuvable" },
+//         { status: 404 }
+//       );
+//     }
+
+//     // ✅ SÉCURITÉ : Vérifier que le vendeur est bien le propriétaire
+//     if (product.vendorId.toString() !== vendorId) {
+//       console.log("❌ Tentative de modification non autorisée");
+//       console.log("   Vendeur du produit:", product.vendorId.toString());
+//       console.log("   Vendeur connecté:", vendorId);
+      
+//       return NextResponse.json(
+//         { message: "Non autorisé. Vous ne pouvez modifier que vos propres produits." },
+//         { status: 403 }
+//       );
+//     }
+
+//     // Récupérer les données de mise à jour
+//     const body = await request.json();
+//     const {
+//       name,
+//       desc,
+//       price,
+//       priceNumber,
+//       img,
+//       category,
+//       details,
+//       origin,
+//       freshness,
+//       nutritionalInfo,
+//       stock,
+//       isActive
+//     } = body;
+
+//     console.log("📝 Mise à jour du produit:", params.id);
+
+//     // Validation
+//     if (name !== undefined && !name) {
+//       return NextResponse.json(
+//         { message: "Le nom du produit est requis" },
+//         { status: 400 }
+//       );
+//     }
+
+//     if (priceNumber !== undefined && (typeof priceNumber !== "number" || priceNumber < 0)) {
+//       return NextResponse.json(
+//         { message: "Le prix doit être un nombre positif" },
+//         { status: 400 }
+//       );
+//     }
+
+//     if (stock !== undefined && (typeof stock !== "number" || stock < 0)) {
+//       return NextResponse.json(
+//         { message: "Le stock doit être un nombre positif" },
+//         { status: 400 }
+//       );
+//     }
+
+//     // Construire l'objet de mise à jour (seulement les champs fournis)
+//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//     const updateData: any = {};
+//     if (name !== undefined) updateData.name = name;
+//     if (desc !== undefined) updateData.desc = desc;
+//     if (price !== undefined) updateData.price = price;
+//     if (priceNumber !== undefined) updateData.priceNumber = priceNumber;
+//     if (img !== undefined) updateData.img = img;
+//     if (category !== undefined) updateData.category = category;
+//     if (details !== undefined) updateData.details = details;
+//     if (origin !== undefined) updateData.origin = origin;
+//     if (freshness !== undefined) updateData.freshness = freshness;
+//     if (nutritionalInfo !== undefined) updateData.nutritionalInfo = nutritionalInfo;
+//     if (stock !== undefined) updateData.stock = stock;
+//     if (isActive !== undefined) updateData.isActive = isActive;
+
+//     // Mettre à jour
+//     const updatedProduct = await Product.findByIdAndUpdate(
+//       params.id,
+//       updateData,
+//       { new: true, runValidators: true }
+//     );
+
+//     console.log("✅ Produit mis à jour avec succès");
+
+//     return NextResponse.json(
+//       {
+//         message: "Produit mis à jour avec succès",
+//         product: {
+//           id: updatedProduct._id.toString(),
+//           name: updatedProduct.name,
+//           price: updatedProduct.price,
+//           stock: updatedProduct.stock,
+//           isActive: updatedProduct.isActive,
+//         }
+//       },
+//       { status: 200 }
+//     );
+
+//   } catch (error) {
+//     console.error("❌ Erreur mise à jour produit:", error);
+    
+//     if (error instanceof Error && error.message.includes("validation failed")) {
+//       return NextResponse.json(
+//         { message: "Données invalides. Vérifiez tous les champs." },
+//         { status: 400 }
+//       );
+//     }
+    
+//     return NextResponse.json(
+//       { message: "Erreur lors de la mise à jour du produit" },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+
+
+
+
+// ✅ PUT - CORRECTION ICI
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }  // ✅ Changé
 ) {
   try {
     console.log("🔍 Vérification de la session...");
@@ -363,8 +508,10 @@ export async function PUT(
 
     await connectDB();
 
+    const { id } = await context.params;  // ✅ Changé
+
     // Vérifier que le produit existe et appartient au vendeur
-    const product = await Product.findById(params.id);
+    const product = await Product.findById(id);  // ✅ Changé
 
     if (!product) {
       return NextResponse.json(
@@ -402,7 +549,7 @@ export async function PUT(
       isActive
     } = body;
 
-    console.log("📝 Mise à jour du produit:", params.id);
+    console.log("📝 Mise à jour du produit:", id);  // ✅ Changé
 
     // Validation
     if (name !== undefined && !name) {
@@ -426,7 +573,7 @@ export async function PUT(
       );
     }
 
-    // Construire l'objet de mise à jour (seulement les champs fournis)
+    // Construire l'objet de mise à jour
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateData: any = {};
     if (name !== undefined) updateData.name = name;
@@ -444,7 +591,7 @@ export async function PUT(
 
     // Mettre à jour
     const updatedProduct = await Product.findByIdAndUpdate(
-      params.id,
+      id,  // ✅ Changé
       updateData,
       { new: true, runValidators: true }
     );
@@ -482,10 +629,10 @@ export async function PUT(
   }
 }
 
-// ✅ DELETE - Supprimer un produit (seulement par le vendeur propriétaire)
+// ✅ DELETE - CORRECTION ICI
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }  // ✅ Changé
 ) {
   try {
     console.log("🔍 Vérification de la session pour suppression...");
@@ -504,8 +651,10 @@ export async function DELETE(
 
     await connectDB();
 
+    const { id } = await context.params;  // ✅ Changé
+
     // Vérifier que le produit existe
-    const product = await Product.findById(params.id);
+    const product = await Product.findById(id);  // ✅ Changé
 
     if (!product) {
       return NextResponse.json(
@@ -526,17 +675,17 @@ export async function DELETE(
       );
     }
 
-    console.log("🗑️ Suppression du produit:", params.id);
+    console.log("🗑️ Suppression du produit:", id);  // ✅ Changé
 
     // Supprimer le produit
-    await Product.findByIdAndDelete(params.id);
+    await Product.findByIdAndDelete(id);  // ✅ Changé
 
     console.log("✅ Produit supprimé avec succès");
 
     return NextResponse.json(
       {
         message: "Produit supprimé avec succès",
-        productId: params.id
+        productId: id  // ✅ Changé
       },
       { status: 200 }
     );
@@ -549,3 +698,73 @@ export async function DELETE(
     );
   }
 }
+
+
+
+// // ✅ DELETE - Supprimer un produit (seulement par le vendeur propriétaire)
+// export async function DELETE(
+//   request: NextRequest,
+//   { params }: { params: { id: string } }
+// ) {
+//   try {
+//     console.log("🔍 Vérification de la session pour suppression...");
+    
+//     const session = await getServerSession(authOptions);
+    
+//     if (!session || !session.user) {
+//       return NextResponse.json(
+//         { message: "Non autorisé. Vous devez être connecté." },
+//         { status: 401 }
+//       );
+//     }
+
+//     const vendorId = session.user.id;
+//     console.log("👤 Vendeur connecté:", vendorId);
+
+//     await connectDB();
+
+//     // Vérifier que le produit existe
+//     const product = await Product.findById(params.id);
+
+//     if (!product) {
+//       return NextResponse.json(
+//         { message: "Produit introuvable" },
+//         { status: 404 }
+//       );
+//     }
+
+//     // ✅ SÉCURITÉ : Vérifier que le vendeur est bien le propriétaire
+//     if (product.vendorId.toString() !== vendorId) {
+//       console.log("❌ Tentative de suppression non autorisée");
+//       console.log("   Vendeur du produit:", product.vendorId.toString());
+//       console.log("   Vendeur connecté:", vendorId);
+      
+//       return NextResponse.json(
+//         { message: "Non autorisé. Vous ne pouvez supprimer que vos propres produits." },
+//         { status: 403 }
+//       );
+//     }
+
+//     console.log("🗑️ Suppression du produit:", params.id);
+
+//     // Supprimer le produit
+//     await Product.findByIdAndDelete(params.id);
+
+//     console.log("✅ Produit supprimé avec succès");
+
+//     return NextResponse.json(
+//       {
+//         message: "Produit supprimé avec succès",
+//         productId: params.id
+//       },
+//       { status: 200 }
+//     );
+
+//   } catch (error) {
+//     console.error("❌ Erreur suppression produit:", error);
+//     return NextResponse.json(
+//       { message: "Erreur lors de la suppression du produit" },
+//       { status: 500 }
+//     );
+//   }
+// }
