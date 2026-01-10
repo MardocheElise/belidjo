@@ -181,7 +181,7 @@ export default function GroceryPage() {
         </h1>
 
         <div className="flex items-center gap-3">
-          <VendorMenu />
+          <VendorMenu/>
           <Button
             variant="outline"
             onClick={() => setShowCartModal(true)}
@@ -217,9 +217,9 @@ export default function GroceryPage() {
           {/* Badge et Filter Container */}
           <div className="flex items-center gap-4">
             {/* Badge "Achetez maintenant" */}
-            <div className="bg-orange-500 hover:bg-orange-600 transition-colors rounded-full px-6 py-3 text-white font-medium text-lg shadow-md">
+            {/* <div className="bg-orange-500 hover:bg-orange-600 transition-colors rounded-full px-6 py-3 text-white font-medium text-lg shadow-md">
               Achetez maintenant
-            </div>
+            </div> */}
 
             {/* Dropdown Filter */}
             <div className="relative">
