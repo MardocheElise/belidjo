@@ -136,14 +136,6 @@ export default function FruitHomepage() {
             et vendent directement une large variété de produits : alimentation, fruits et légumes, produits 
             cosmétiques, équipements informatiques, linge de maison et bien plus encore. Achetez et vendez 
             facilement, localement et en toute confiance, sans quitter le campus.
-          <br />
-          Mangues gorgées de soleil, ananas parfumés, avocats onctueux,
-          bananes parfaitement mûres etc. —
-          <span className="font-bold text-yellow-200">
-            {" "}
-            tout ce qu’il vous faut pour allier santé, plaisir et praticité au
-            quotidien.
-          </span>
         </p>
 
         {/* Bouton principal */}
