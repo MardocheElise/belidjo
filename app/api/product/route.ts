@@ -203,6 +203,8 @@ export async function POST(request: NextRequest) {
 }
 
 // Dans votre API GET /api/product
+
+// GET /api/product
 export async function GET(request: NextRequest) {
   try {
     console.log("🔄 Connexion à MongoDB...");
@@ -210,15 +212,22 @@ export async function GET(request: NextRequest) {
     console.log("✅ Connecté à MongoDB");
 
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category');
-    const vendorId = searchParams.get('vendorId');
-    
-     
-    const filter: any = { isActive: true };
+    const category = searchParams.get("category");
+    const vendorId = searchParams.get("vendorId");
+    const isActiveParam = searchParams.get("isActive"); // "true" | "false" | null
+
+    // Filtre dynamique
+    const filter: any = {};
+
     if (category) filter.category = category;
     if (vendorId) filter.vendorId = vendorId;
 
-    // Récupérer les produits AVEC populate pour avoir les infos vendeur
+    // Si isActive est précisé, on filtre
+    if (isActiveParam !== null) {
+      filter.isActive = isActiveParam === "true";
+    }
+    // Sinon : aucun filtre → actifs + non actifs
+
     const products = await Product.find(filter)
       .populate("vendorId", "name email phone businessType logo")
       .sort({ createdAt: -1 })
@@ -226,63 +235,156 @@ export async function GET(request: NextRequest) {
 
     console.log(`✅ ${products.length} produits trouvés`);
 
-    // Transformation pour le frontend
     const transformedProducts = products.map((product: any) => {
-  // Assertion de type pour traiter product comme RawProductWithVendor
-  const rawProduct = product as RawProductWithVendor;
-  
-  return {
-    id: rawProduct._id.toString(),
-    _id: rawProduct._id.toString(),
-    name: rawProduct.name,
-    description: rawProduct.desc,
-    desc: rawProduct.desc,
-    price: rawProduct.price,
-    priceNumber: Number(rawProduct.priceNumber),
-    img: rawProduct.img,
-    category: rawProduct.category,
-    vendorId: rawProduct.vendorId?._id?.toString() || rawProduct.vendorId?.toString(),
-    vendorInfo: rawProduct.vendorId ? {
-      _id: rawProduct.vendorId._id?.toString(),
-      name: rawProduct.vendorId.name,
-      email: rawProduct.vendorId.email,
-      phone: rawProduct.vendorId.phone,
-      businessType: rawProduct.vendorId.businessType,
-      logo: rawProduct.vendorId.logo
-    } : null,
-    details: rawProduct.details,
-    origin: rawProduct.origin,
-    freshness: rawProduct.freshness,
-    nutritionalInfo: rawProduct.nutritionalInfo || [],
-    stock: rawProduct.stock,
-    unit: rawProduct.unit || "unité",
-    isActive: rawProduct.isActive,
-    createdAt: rawProduct.createdAt,
-    updatedAt: rawProduct.updatedAt,
-  };
-});
+      const rawProduct = product as RawProductWithVendor;
 
-    // Debug
-    if (transformedProducts.length > 0) {
-      console.log('🔍 Premier produit transformé:', {
-        id: transformedProducts[0].id,
-        name: transformedProducts[0].name,
-        vendorId: transformedProducts[0].vendorId,
-        vendorInfo: transformedProducts[0].vendorInfo
-      });
-    }
+      return {
+        id: rawProduct._id.toString(),
+        _id: rawProduct._id.toString(),
+        name: rawProduct.name,
+        description: rawProduct.desc,
+        desc: rawProduct.desc,
+        price: rawProduct.price,
+        priceNumber: Number(rawProduct.priceNumber),
+        img: rawProduct.img,
+        category: rawProduct.category,
 
-    return NextResponse.json({ products: transformedProducts }, { status: 200 });
+        vendorId:
+          rawProduct.vendorId?._id?.toString() ||
+          rawProduct.vendorId?.toString(),
 
+        vendorInfo: rawProduct.vendorId
+          ? {
+              _id: rawProduct.vendorId._id?.toString(),
+              name: rawProduct.vendorId.name,
+              email: rawProduct.vendorId.email,
+              phone: rawProduct.vendorId.phone,
+              businessType: rawProduct.vendorId.businessType,
+              logo: rawProduct.vendorId.logo,
+            }
+          : null,
+
+        details: rawProduct.details,
+        origin: rawProduct.origin,
+        freshness: rawProduct.freshness,
+        nutritionalInfo: rawProduct.nutritionalInfo || [],
+        stock: rawProduct.stock,
+        unit: rawProduct.unit || "unité",
+        isActive: rawProduct.isActive,
+        createdAt: rawProduct.createdAt,
+        updatedAt: rawProduct.updatedAt,
+      };
+    });
+
+    return NextResponse.json(
+      { products: transformedProducts },
+      { status: 200 }
+    );
   } catch (error) {
-    console.error("❌ Erreur dans la recherche des produits:", error);
+    console.error("❌ Erreur dans la récupération des produits:", error);
     return NextResponse.json(
       { message: "Erreur lors de la récupération des produits" },
       { status: 500 }
     );
   }
 }
+
+
+// export async function GET(request: NextRequest) {
+//   try {
+//     console.log("🔄 Connexion à MongoDB...");
+//     await connectDB();
+//     console.log("✅ Connecté à MongoDB");
+
+//     const { searchParams } = new URL(request.url);
+//     const category = searchParams.get('category');
+//     const vendorId = searchParams.get('vendorId');
+    
+     
+//     const filter: any = { isActive:true };
+//     if (category) filter.category = category;
+//     if (vendorId) filter.vendorId = vendorId;
+
+//     // Récupérer les produits AVEC populate pour avoir les infos vendeur
+//     const products = await Product.find(filter)
+//       .populate("vendorId", "name email phone businessType logo")
+//       .sort({ createdAt: -1 })
+//       .lean();
+
+//     console.log(`✅ ${products.length} produits trouvés`);
+
+//     // Transformation pour le frontend
+//     const transformedProducts = products.map((product: any) => {
+//   // Assertion de type pour traiter product comme RawProductWithVendor
+//   const rawProduct = product as RawProductWithVendor;
+  
+//   return {
+//     id: rawProduct._id.toString(),
+//     _id: rawProduct._id.toString(),
+//     name: rawProduct.name,
+//     description: rawProduct.desc,
+//     desc: rawProduct.desc,
+//     price: rawProduct.price,
+//     priceNumber: Number(rawProduct.priceNumber),
+//     img: rawProduct.img,
+//     category: rawProduct.category,
+//     vendorId: rawProduct.vendorId?._id?.toString() || rawProduct.vendorId?.toString(),
+//     vendorInfo: rawProduct.vendorId ? {
+//       _id: rawProduct.vendorId._id?.toString(),
+//       name: rawProduct.vendorId.name,
+//       email: rawProduct.vendorId.email,
+//       phone: rawProduct.vendorId.phone,
+//       businessType: rawProduct.vendorId.businessType,
+//       logo: rawProduct.vendorId.logo
+//     } : null,
+//     details: rawProduct.details,
+//     origin: rawProduct.origin,
+//     freshness: rawProduct.freshness,
+//     nutritionalInfo: rawProduct.nutritionalInfo || [],
+//     stock: rawProduct.stock,
+//     unit: rawProduct.unit || "unité",
+//     isActive: rawProduct.isActive,
+//     createdAt: rawProduct.createdAt,
+//     updatedAt: rawProduct.updatedAt,
+//   };
+// });
+
+//     // Debug
+//     if (transformedProducts.length > 0) {
+//       console.log('🔍 Premier produit transformé:', {
+//         id: transformedProducts[0].id,
+//         name: transformedProducts[0].name,
+//         vendorId: transformedProducts[0].vendorId,
+//         vendorInfo: transformedProducts[0].vendorInfo
+//       });
+//     }
+
+//     return NextResponse.json({ products: transformedProducts }, { status: 200 });
+
+//   } catch (error) {
+//     console.error("❌ Erreur dans la recherche des produits:", error);
+//     return NextResponse.json(
+//       { message: "Erreur lors de la récupération des produits" },
+//       { status: 500 }
+//     );
+//   }
+// }
  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // // API GET pour récupérer tous les produits
 // export async function GET() {
 //   try {

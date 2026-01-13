@@ -82,7 +82,7 @@ export default function VendorProductsPage() {
         const data = await response.json();
         const allProducts = data.products || [];
         
-        // ✅ Filtrer pour n'afficher que les produits du vendeur connecté
+        //Filtrer pour n'afficher que les produits du vendeur connecté
         const myProducts = allProducts.filter(
           (product: Product) => product.vendorId === session?.user?.id
         );
@@ -102,7 +102,7 @@ export default function VendorProductsPage() {
     }
   }, [session, status]);
 
-  // ✅ Upload d'image
+  // Upload d'image
   const handleImageUpload = async (file: File) => {
     try {
       setUploadingImage(true);
@@ -121,7 +121,7 @@ export default function VendorProductsPage() {
       }
 
       const data = await response.json();
-      console.log('✅ Image uploadée:', data.url);
+      console.log('Image uploadée:', data.url);
 
       // Mettre à jour le formulaire et la prévisualisation
       setEditForm(prev => ({ ...prev, img: data.url }));
