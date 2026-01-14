@@ -15,19 +15,19 @@ import { Toaster } from "@/components/ui/sonner";
 //   subsets: ["latin"],
 // });
 
-export const metadata: Metadata = {
-  title: "🛒 Belidjo", 
-  description: "Belidjo",
-};
-
-
 // export const metadata: Metadata = {
-//   title: "Belidjo", 
+//   title: "🛒 Belidjo", 
 //   description: "Belidjo",
-//   icons: {
-//     icon: '/icon.svg',
-//   },
 // };
+
+
+export const metadata: Metadata = {
+  title: "🛒Belidjo", 
+  description: "Belidjo",
+  icons: {
+    icon: '/icon.svg',
+  },
+};
 
 export default function RootLayout({
   children,

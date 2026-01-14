@@ -575,7 +575,7 @@ export default function SignUpPage() {
         return;
       }
 
-      setSuccess("Inscription réussie ! Création de la session...");
+      setSuccess("Inscription réussie !");
 
       //  CRÉER LA SESSION AUTOMATIQUEMENT
       const signInResult = await signIn("credentials", {

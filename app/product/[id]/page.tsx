@@ -399,7 +399,7 @@ interface Product {
   name: string;
   desc?: string;
   description?: string;
-  price: number; // Nombre pour l'affichage
+  price: string; // Nombre pour l'affichage
   priceNumber: number; // Pour le panier
   priceString?: string; // String "XXX FCFA"
   category: string;
@@ -663,7 +663,7 @@ export default function ProductDetailPage() {
 
                 <div className="flex items-baseline gap-2 mb-4">
                   <span className="text-4xl font-bold text-orange-500">
-                    {product.price}
+                    {product.price} 
                   </span>
                   <span className="text-gray-500">FCFA / {product.unit}</span>
                 </div>
@@ -747,7 +747,7 @@ export default function ProductDetailPage() {
                   <ShoppingCart className="mr-2 h-5 w-5" />
                   {product.stock > 0
                     ? `Ajouter au panier  ${(
-                        product.price * quantity
+                        Number(product.price) * quantity
                       ).toLocaleString()} FCFA`
                     : "Rupture de stock"}
                 </Button>
